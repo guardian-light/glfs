@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Guardian Light Nebraska Map</title>
+  <link rel="icon" type="image/png" href="assets/favicon-rounded.png">
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; width: 100%; height: 100%; overflow: hidden; background: transparent; font-family: "Source Sans 3", "Segoe UI", Arial, sans-serif; }
+    body { touch-action: manipulation; }
+    #map-card { width: 100%; height: 100%; min-height: 420px; display: grid; grid-template-rows: auto 1fr; gap: 8px; }
+    .map-heading { margin: 0; padding: 4px 10px 0; color: #080b18; text-align: center; font-size: clamp(18px, 3vw, 32px); font-weight: 500; line-height: 1.05; letter-spacing: 1px; }
+    .map-heading span { color: #09175f; }
+    .map-stage { position: relative; min-height: 360px; overflow: hidden; border-radius: 12px; background: #eef2ea; border: 1px solid rgba(13,70,102,.16); }
+    svg { display: block; width: 100%; height: 100%; min-height: 360px; }
+    .state-fill { fill: #eef2ea; stroke: #718a69; stroke-width: 2.2; stroke-linejoin: round; }
+    .grid-line { stroke: rgba(113,138,105,.2); stroke-width: .8; }
+    .county-name { font-size: 7.3px; fill: rgba(8,50,71,.58); text-anchor: middle; font-weight: 800; paint-order: stroke; stroke: rgba(255,255,255,.8); stroke-width: 2.2px; stroke-linejoin: round; pointer-events: none; }
+    .service-dot { opacity: .72; transform-box: fill-box; transform-origin: center; transition: transform 180ms ease, opacity 180ms ease; }
+    .service-dot:hover { opacity: 1; transform: scale(1.18); }
+    .glfs-map-pin { cursor: pointer; transition: filter 200ms ease; }
+    .glfs-map-pin .pin-head, .glfs-map-pin .pin-stem, .glfs-map-pin .pin-arrow { transition: r 180ms ease, stroke-width 180ms ease, filter 180ms ease; }
+    .glfs-map-pin:hover { filter: drop-shadow(0 8px 9px rgba(8,50,71,.22)); }
+    .glfs-map-pin:hover .pin-head { r: 10.6; }
+    .glfs-map-pin:hover .pin-stem { stroke-width: 2.4; }
+    .region-card { cursor: pointer; pointer-events: all; transform-box: fill-box; transform-origin: center; transition: transform 220ms ease, filter 220ms ease; }
+    .region-card rect { fill: #185fa5; stroke: rgba(255,255,255,.9); stroke-width: 1; filter: drop-shadow(0 8px 14px rgba(8,50,71,.2)); }
+    .region-card.fp rect { fill: #137747; }
+    .region-card:hover, .region-card:focus-visible { outline: none; transform: translateY(-7px) scale(1.035); filter: drop-shadow(0 13px 18px rgba(8,50,71,.26)); }
+    .region-title { fill: white; font-size: 8px; font-weight: 900; text-anchor: middle; }
+    .region-line { fill: white; font-size: 8px; font-weight: 800; text-anchor: middle; }
+    .map-note { fill: rgba(8,50,71,.42); font-size: 8px; text-anchor: middle; }
+    .legend-rule { stroke: rgba(8,50,71,.18); stroke-width: 1; }
+    .legend-text { fill: rgba(8,50,71,.72); font-size: 8px; }
+    #copied-toast { position: absolute; left: 50%; bottom: 18px; transform: translate(-50%, 14px); padding: 11px 15px; border-radius: 999px; color: white; background: #083247; font-weight: 900; opacity: 0; pointer-events: none; box-shadow: 0 16px 32px rgba(8,50,71,.26); transition: opacity 180ms ease, transform 180ms ease; z-index: 5; }
+    #copied-toast.show { opacity: 1; transform: translate(-50%, 0); }
+    @media (max-width: 700px) {
+      #map-card { min-height: 610px; }
+      .map-stage, svg { min-height: 560px; }
+      .map-heading { font-size: 16px; line-height: 1.2; }
+      #copied-toast { bottom: 22px; white-space: nowrap; }
+    }
+  </style>
+</head>
+<body>
+  <main id="map-card" aria-label="Guardian Light Family Services Nebraska map">
+    <h1 class="map-heading">Guardian Light Family Services - <span>Family Support &amp; Preservation Programs</span></h1>
+    <section class="map-stage">
+      <svg id="ne-map" viewBox="0 0 780 430" role="img" aria-label="Nebraska service map with counties, visitation centers, service dots, and supervisor contacts">
+        <defs>
+          <clipPath id="ne-clip">
+            <path id="ne-shape-clip" d="M 56.7,47.1 L 136.9,47.2 L 176.0,47.3 L 224.7,47.3 L 241.7,47.6 L 298.0,47.5 L 356.6,47.4 L 398.5,47.5 L 449.4,47.4 L 480.0,47.4 L 482.5,52.2 L 498.4,59.2 L 508.2,64.2 L 516.7,69.9 L 521.9,69.1 L 525.2,66.8 L 527.7,60.7 L 529.8,59.8 L 535.3,61.5 L 542.2,62.3 L 547.1,60.9 L 551.5,61.8 L 555.8,60.7 L 560.8,61.9 L 562.7,60.0 L 566.8,61.0 L 570.9,59.9 L 577.7,61.9 L 578.0,65.1 L 582.9,66.7 L 584.3,69.0 L 596.1,70.0 L 598.3,74.0 L 601.5,72.6 L 609.2,75.4 L 609.5,78.7 L 615.2,79.0 L 618.2,80.3 L 616.3,84.5 L 622.1,89.9 L 624.0,94.3 L 630.6,93.8 L 631.9,96.3 L 636.6,95.7 L 640.4,96.4 L 641.5,100.0 L 639.0,103.6 L 639.0,109.8 L 642.1,112.2 L 645.9,120.6 L 643.1,122.6 L 644.0,126.6 L 650.0,131.1 L 649.7,137.9 L 653.8,140.0 L 652.5,141.3 L 656.6,142.2 L 656.3,144.6 L 660.7,145.1 L 659.8,150.5 L 658.2,151.4 L 662.0,156.4 L 662.3,159.5 L 665.6,161.4 L 664.8,165.2 L 662.6,166.8 L 664.2,171.2 L 661.2,172.7 L 663.4,176.1 L 661.5,179.2 L 664.5,182.4 L 663.7,187.0 L 667.8,189.3 L 668.3,186.3 L 670.8,186.4 L 670.2,192.7 L 675.7,193.5 L 676.0,203.0 L 674.1,205.3 L 679.5,207.5 L 676.0,210.9 L 677.4,216.1 L 676.3,219.1 L 682.8,221.0 L 679.5,222.4 L 680.9,230.0 L 679.5,232.2 L 681.5,234.7 L 681.2,238.1 L 683.7,239.8 L 683.1,245.2 L 685.0,247.4 L 682.3,251.6 L 683.4,258.3 L 679.8,261.2 L 679.3,264.2 L 683.4,269.0 L 686.9,270.3 L 689.7,274.9 L 688.6,277.2 L 688.3,282.3 L 693.8,282.6 L 694.1,279.9 L 697.1,281.3 L 693.5,284.8 L 693.8,288.0 L 696.8,290.8 L 696.5,294.0 L 699.8,303.0 L 704.7,305.1 L 704.4,307.7 L 709.9,309.3 L 710.5,315.6 L 717.0,321.8 L 714.8,328.3 L 723.3,332.9 L 686.9,332.9 L 647.5,332.9 L 575.6,332.8 L 499.2,332.7 L 454.6,332.7 L 379.9,332.8 L 307.9,332.7 L 279.4,332.7 L 209.1,332.6 L 209.1,237.5 L 170.8,237.5 L 133.8,237.5 L 56.7,237.6 L 56.7,47.1 Z"></path>
+          </clipPath>
+        </defs>
+        <path class="state-fill" d="M 56.7,47.1 L 136.9,47.2 L 176.0,47.3 L 224.7,47.3 L 241.7,47.6 L 298.0,47.5 L 356.6,47.4 L 398.5,47.5 L 449.4,47.4 L 480.0,47.4 L 482.5,52.2 L 498.4,59.2 L 508.2,64.2 L 516.7,69.9 L 521.9,69.1 L 525.2,66.8 L 527.7,60.7 L 529.8,59.8 L 535.3,61.5 L 542.2,62.3 L 547.1,60.9 L 551.5,61.8 L 555.8,60.7 L 560.8,61.9 L 562.7,60.0 L 566.8,61.0 L 570.9,59.9 L 577.7,61.9 L 578.0,65.1 L 582.9,66.7 L 584.3,69.0 L 596.1,70.0 L 598.3,74.0 L 601.5,72.6 L 609.2,75.4 L 609.5,78.7 L 615.2,79.0 L 618.2,80.3 L 616.3,84.5 L 622.1,89.9 L 624.0,94.3 L 630.6,93.8 L 631.9,96.3 L 636.6,95.7 L 640.4,96.4 L 641.5,100.0 L 639.0,103.6 L 639.0,109.8 L 642.1,112.2 L 645.9,120.6 L 643.1,122.6 L 644.0,126.6 L 650.0,131.1 L 649.7,137.9 L 653.8,140.0 L 652.5,141.3 L 656.6,142.2 L 656.3,144.6 L 660.7,145.1 L 659.8,150.5 L 658.2,151.4 L 662.0,156.4 L 662.3,159.5 L 665.6,161.4 L 664.8,165.2 L 662.6,166.8 L 664.2,171.2 L 661.2,172.7 L 663.4,176.1 L 661.5,179.2 L 664.5,182.4 L 663.7,187.0 L 667.8,189.3 L 668.3,186.3 L 670.8,186.4 L 670.2,192.7 L 675.7,193.5 L 676.0,203.0 L 674.1,205.3 L 679.5,207.5 L 676.0,210.9 L 677.4,216.1 L 676.3,219.1 L 682.8,221.0 L 679.5,222.4 L 680.9,230.0 L 679.5,232.2 L 681.5,234.7 L 681.2,238.1 L 683.7,239.8 L 683.1,245.2 L 685.0,247.4 L 682.3,251.6 L 683.4,258.3 L 679.8,261.2 L 679.3,264.2 L 683.4,269.0 L 686.9,270.3 L 689.7,274.9 L 688.6,277.2 L 688.3,282.3 L 693.8,282.6 L 694.1,279.9 L 697.1,281.3 L 693.5,284.8 L 693.8,288.0 L 696.8,290.8 L 696.5,294.0 L 699.8,303.0 L 704.7,305.1 L 704.4,307.7 L 709.9,309.3 L 710.5,315.6 L 717.0,321.8 L 714.8,328.3 L 723.3,332.9 L 686.9,332.9 L 647.5,332.9 L 575.6,332.8 L 499.2,332.7 L 454.6,332.7 L 379.9,332.8 L 307.9,332.7 L 279.4,332.7 L 209.1,332.6 L 209.1,237.5 L 170.8,237.5 L 133.8,237.5 L 56.7,237.6 L 56.7,47.1 Z"></path>
+        <g id="grid" clip-path="url(#ne-clip)"></g>
+        <g id="counties" clip-path="url(#ne-clip)"></g>
+        <g id="dots" clip-path="url(#ne-clip)"></g>
+        <g id="pins"></g>
+        <g id="cards"></g>
+        <text class="map-note" x="390" y="374">Serving all 93 Nebraska counties</text>
+        <line class="legend-rule" x1="60" y1="386" x2="720" y2="386"></line>
+        <g id="legend" transform="translate(60,405)">
+          <circle cx="0" cy="0" r="4" fill="#185FA5"></circle><text class="legend-text" x="10" y="3">Visitation center</text>
+          <circle cx="100" cy="0" r="4" fill="#1D9E75"></circle><text class="legend-text" x="110" y="3">Family support workers</text>
+          <circle cx="222" cy="0" r="4" fill="#378ADD"></circle><text class="legend-text" x="232" y="3">Foster care specialists</text>
+          <circle cx="354" cy="0" r="4" fill="#EF9F27"></circle><text class="legend-text" x="364" y="3">Therapists / skill builders</text>
+        </g>
+      </svg>
+      <div id="copied-toast" role="status" aria-live="polite">Copied to Clipboard</div>
+    </section>
+  </main>
+  <script>
+    const svg = document.getElementById("ne-map");
+    const NS = "http://www.w3.org/2000/svg";
+    const make = (tag, attrs = {}, text = "") => {
+      const el = document.createElementNS(NS, tag);
+      Object.entries(attrs).forEach(([key, value]) => el.setAttribute(key, value));
+      if (text) el.textContent = text;
+      return el;
+    };
+
+    const grid = document.getElementById("grid");
+    for (let x = 95; x <= 685; x += 76) grid.appendChild(make("line", { class: "grid-line", x1: x, x2: x, y1: 45, y2: 336 }));
+    for (let y = 88; y <= 304; y += 48) grid.appendChild(make("line", { class: "grid-line", x1: 55, x2: 724, y1: y, y2: y }));
+
+    const sx = x => 56.7 + ((x - 45) / 1047) * 666.6;
+    const sy = y => 47.1 + ((y - 84) / 506) * 285.8;
+    const counties = [
+      ["Sioux",75,118],["Dawes",140,118],["Sheridan",220,118],["Cherry",350,118],["Keya Paha",515,118],["Boyd",615,118],["Knox",725,118],["Cedar",825,118],["Dixon",905,118],["Dakota",960,118],
+      ["Box Butte",130,155],["Brown",500,155],["Rock",575,155],["Holt",660,155],["Pierce",770,155],["Wayne",850,155],["Thurston",925,155],
+      ["Scotts Bluff",112,225],["Morrill",145,225],["Garden",220,225],["Grant",295,225],["Hooker",360,225],["Thomas",425,225],["Blaine",490,225],["Loup",555,225],["Garfield",630,225],["Wheeler",700,225],["Antelope",770,225],["Madison",840,225],["Stanton",910,225],["Cuming",980,225],["Burt",1040,225],
+      ["Banner",70,305],["Cheyenne",145,305],["Deuel",220,305],["Keith",300,305],["Arthur",365,305],["McPherson",430,305],["Logan",495,305],["Custer",570,305],["Valley",665,305],["Greeley",735,305],["Boone",800,305],["Platte",870,305],["Colfax",935,305],["Dodge",1000,305],["Washington",1060,305],
+      ["Kimball",75,382],["Perkins",230,382],["Lincoln",390,382],["Dawson",535,382],["Buffalo",640,382],["Sherman",705,382],["Hall",745,382],["Howard",790,382],["Merrick",840,382],["Nance",890,382],["Polk",930,382],["Saunders",980,382],["Douglas",1030,382],["Sarpy",1075,382],
+      ["Chase",230,455],["Hayes",340,455],["Frontier",460,455],["Gosper",540,455],["Phelps",610,455],["Kearney",675,455],["Adams",745,455],["Clay",815,455],["Hamilton",875,455],["York",925,455],["Butler",975,455],["Seward",1015,455],["Lancaster",1065,455],["Cass",1090,455],
+      ["Dundy",230,530],["Hitchcock",340,530],["Red Willow",460,530],["Furnas",560,530],["Harlan",635,530],["Franklin",705,530],["Webster",775,530],["Nuckolls",845,530],["Thayer",915,530],["Fillmore",975,530],["Saline",1035,530],["Otoe",1080,530],
+      ["Jefferson",920,585],["Gage",985,585],["Johnson",1040,585],["Nemaha",1080,585],["Pawnee",1045,620],["Richardson",1090,620]
+    ];
+    const countyGroup = document.getElementById("counties");
+    counties.forEach(([name, x, y]) => countyGroup.appendChild(make("text", { class: "county-name", x: sx(x).toFixed(1), y: sy(y).toFixed(1) }, name)));
+
+    const serviceDots = [
+      ["green",82,94],["green",149,104],["green",232,84],["green",302,99],["green",406,84],["green",501,95],["green",586,103],["green",720,105],["green",852,125],["green",930,152],["green",1018,174],
+      ["green",58,190],["green",175,178],["green",315,202],["green",472,200],["green",548,238],["green",690,238],["green",812,210],["green",900,228],["green",1048,228],["green",990,268],
+      ["green",106,275],["green",236,275],["green",390,260],["green",618,300],["green",760,295],["green",930,310],["green",1060,310],
+      ["green",230,390],["green",330,388],["green",460,390],["green",560,400],["green",700,400],["green",835,400],["green",940,400],["green",1038,392],
+      ["blue",250,132],["blue",410,168],["blue",655,278],["blue",955,182],["blue",110,205],
+      ["orange",460,350],["orange",730,330],["orange",865,350],["orange",1010,330],["orange",675,300]
+    ];
+    const dotColors = { green: "#1D9E75", blue: "#378ADD", orange: "#EF9F27" };
+    const dotGroup = document.getElementById("dots");
+    serviceDots.forEach(([type, x, y]) => dotGroup.appendChild(make("circle", { class: "service-dot", cx: sx(x).toFixed(1), cy: sy(y).toFixed(1), r: 5, fill: dotColors[type] })));
+
+    const pinGroup = document.getElementById("pins");
+    const pinData = [
+      ["SB",85.8,154.8,"Scottsbluff"],["SI",138.4,224.3,"Sidney"],["NP",307.7,226.2,"North Platte"],["KE",435.8,266.2,"Kearney"],["LN",617.2,255.8,"Lincoln"],["OM",667.6,212.9,"Omaha"]
+    ];
+    pinData.forEach(([label, x, y, city]) => {
+      const pin = make("g", { class: "glfs-map-pin", tabindex: "0", "aria-label": `${city} visitation center`, transform: `translate(${x},${y})` });
+      pin.appendChild(make("line", { class: "pin-stem", x1: 0, y1: -11, x2: 0, y2: 5, stroke: "#185FA5", "stroke-width": 2 }));
+      pin.appendChild(make("polygon", { class: "pin-arrow", points: "-3,3 0,9 3,3", fill: "#185FA5" }));
+      pin.appendChild(make("circle", { class: "pin-head", cx: 0, cy: -21, r: 9.5, fill: "#185FA5", stroke: "white", "stroke-width": 1.5 }));
+      pin.appendChild(make("text", { x: 0, y: -18, "text-anchor": "middle", fill: "white", "font-size": 6.7, "font-weight": 900 }, label));
+      pinGroup.appendChild(pin);
+    });
+
+    const cards = [
+      { x: 555, y: 12, w: 205, h: 54, title: "COO & Director of FS: Stephanie Wengler", lines: ["stephanie.wengler@guardian-light.com", "308-289-5398"] },
+      { x: 555, y: 74, w: 205, h: 54, title: "Director of FP: Cari Brunner", lines: ["cari.brunner@guardian-light.com", "308-660-7569"], fp: true },
+      { x: 112, y: 118, w: 186, h: 54, title: "West FS Supervisor: Tony Ketcham", lines: ["tony.ketcham@guardian-light.com", "308-660-1249"] },
+      { x: 300, y: 224, w: 180, h: 54, title: "Central FS Supervisor: Mark Leach", lines: ["mark.leach@guardian-light.com", "308-660-1027"] },
+      { x: 500, y: 224, w: 180, h: 54, title: "North FS Supervisor: Ricky Wright", lines: ["ricky.wright@guardian-light.com", "308-660-1676"] },
+      { x: 560, y: 138, w: 180, h: 54, title: "Omaha FS Supervisor: Anna Miller", lines: ["anna.miller@guardian-light.com", "308-660-7172"] },
+      { x: 510, y: 304, w: 198, h: 54, title: "Southeast FS Supervisor: Susanne Shald", lines: ["susanne.shald@guardian-light.com", "308-660-9561"] }
+    ];
+    const cardGroup = document.getElementById("cards");
+    cards.forEach(card => {
+      const copyText = [card.title, ...card.lines].join("\n");
+      const group = make("g", { class: `region-card${card.fp ? " fp" : ""}`, tabindex: "0", role: "button", "aria-label": `${card.title}. Click to copy contact information.`, "data-copy": copyText });
+      group.appendChild(make("rect", { x: card.x, y: card.y, width: card.w, height: card.h, rx: 18, ry: 18 }));
+      group.appendChild(make("text", { class: "region-title", x: card.x + card.w / 2, y: card.y + 17 }, card.title));
+      card.lines.forEach((line, index) => group.appendChild(make("text", { class: "region-line", x: card.x + card.w / 2, y: card.y + 31 + index * 12 }, line)));
+      cardGroup.appendChild(group);
+    });
+
+    const toast = document.getElementById("copied-toast");
+    let toastTimer;
+    const copyValue = async value => {
+      try {
+        await navigator.clipboard.writeText(value);
+      } catch {
+        const area = document.createElement("textarea");
+        area.value = value;
+        area.style.position = "fixed";
+        area.style.left = "-999px";
+        document.body.appendChild(area);
+        area.select();
+        document.execCommand("copy");
+        area.remove();
+      }
+      clearTimeout(toastTimer);
+      toast.classList.add("show");
+      toastTimer = setTimeout(() => toast.classList.remove("show"), 1700);
+    };
+    document.querySelectorAll(".region-card").forEach(card => {
+      card.addEventListener("click", () => copyValue(card.dataset.copy));
+      card.addEventListener("keydown", event => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          copyValue(card.dataset.copy);
+        }
+      });
+    });
+  </script>
+</body>
+</html>
